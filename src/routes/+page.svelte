@@ -1,17 +1,16 @@
-<!-- src/routes/+page.svelte -->
 <script lang="ts">
     import { onMount } from 'svelte';
     import FolderNav from '$lib/components/FolderNav.svelte';
     import GridView from '$lib/components/GridView.svelte';
     import DownloadButton from '$lib/components/DownloadButton.svelte';
-    import type { FileTreeItem } from '$lib/types';
+    import type { FolderItem } from '$lib/types';
   
-    let fileTree: FileTreeItem[] = [];
+    let folderTree: FolderItem[] = [{ name: '', path: '' }];
     let selectedFolder = '';
   
-    async function fetchFileTree() {
-      const response = await fetch('/api/data');
-      fileTree = await response.json();
+    async function fetchFolderTree() {
+      const response = await fetch('/api/folders');
+      folderTree = await response.json();
     }
   
     function handleFolderSelected(event: CustomEvent<string>) {
@@ -19,13 +18,13 @@
     }
   
     onMount(() => {
-      fetchFileTree();
+      fetchFolderTree();
     });
   </script>
   
   <div class="flex flex-col md:flex-row">
     <div class="md:w-64 bg-gray-100 p-4">
-      <FolderNav {fileTree} on:folderSelected={handleFolderSelected} />
+      <FolderNav {folderTree} on:folderSelected={handleFolderSelected} />
     </div>
     <div class="flex-1 p-4">
       <div class="flex items-center justify-between mb-4">

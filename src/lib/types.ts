@@ -1,7 +1,14 @@
-export interface FileTreeItem {
+// src/lib/types.ts
+export interface FileItem {
     name: string;
     path: string;
-    type: 'folder' | 'image' | 'video' | 'other';
+    type: 'image' | 'video' | 'other';
     previewUrl?: string;
-    children?: FileTreeItem[];
+    fullUrl?: string;
+  }
+  
+  export interface FolderItem {
+    name: string;
+    path: string;
+    children?: FolderItem[];
   }
