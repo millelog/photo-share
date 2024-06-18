@@ -67,9 +67,9 @@
 </script>
 
 <button
-	class="bg-xteal hover:bg-xdteal text-xgray font-bold py-2 px-4 h-full cursor-pointer focus:outline-none {filePath
-		? 'md:py-2'
-		: 'md:py-4'}"
+	class="bg-xteal hover:bg-xdteal text-xgray font-bold {filePath
+		? 'py-1'
+		: 'py-2'} px-4 h-full cursor-pointer focus:outline-none {filePath ? 'md:py-2' : 'md:py-4'}"
 	on:click={handleDownload}
 	disabled={(!currentSelectedFolder && !filePath) || isDownloading}
 >
@@ -91,8 +91,8 @@
 			Downloading...
 		</div>
 	{:else if filePath !== ''}
-    Save
-  {:else}
-    Download
+		Save
+	{:else}
+		Download
 	{/if}
 </button>
