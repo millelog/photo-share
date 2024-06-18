@@ -1,4 +1,3 @@
-// src/routes/api/data/+server.ts
 import path from 'path';
 import fs from 'fs';
 import type { FileTreeItem } from '$lib/types';
@@ -16,28 +15,29 @@ function getFileType(filePath: string): 'image' | 'video' | 'other' {
   return 'other';
 }
 
-function buildFileTree(baseUrl: string): FileTreeItem[] {
-  const files = isDev ? getFilesFromDisk(dataDir) : import.meta.glob('/data/**/*', { eager: true });
+function buildFileTree(baseDir: string, baseUrl: string): FileTreeItem[] {
+  const files = getFilesFromDisk(baseDir);
   const fileTree: FileTreeItem[] = [];
 
   for (const filePath in files) {
-    const file = files[filePath];
-    const relativePath = isDev ? path.relative(dataDir, filePath) : filePath.replace('/data/', '');
+    const relativePath = path.relative(dataDir, filePath);
     const pathParts = relativePath.split(path.sep);
     const fileName = pathParts[pathParts.length - 1];
 
-    if (isDev ? fs.statSync(filePath).isDirectory() : file instanceof Array) {
+
+    if (files[filePath] === 'directory') {
       // It's a folder
       fileTree.push({
         name: fileName,
         path: relativePath,
         type: 'folder',
-        children: buildFileTree(`${baseUrl}/${relativePath}`),
+        children: buildFileTree(path.join(baseDir, fileName), `${baseUrl}/${relativePath}`),
       });
     } else {
       // It's a file
       const fileType = getFileType(fileName);
-      const previewUrl = fileType !== 'other' ? `${baseUrl}/${relativePath}` : undefined;
+      const previewUrl = fileType !== 'other' ? `/api/data?path=${encodeURIComponent(filePath)}` : undefined;
+
 
       fileTree.push({
         name: fileName,
@@ -52,30 +52,46 @@ function buildFileTree(baseUrl: string): FileTreeItem[] {
 }
 
 function getFilesFromDisk(directory: string): Record<string, any> {
-  const files: Record<string, any> = {};
-
-  function traverseDirectory(currentDir: string) {
-    const dirContents = fs.readdirSync(currentDir, { withFileTypes: true });
-
-    for (const item of dirContents) {
-      const itemPath = path.join(currentDir, item.name);
-      if (item.isDirectory()) {
-        files[itemPath] = [];
-        traverseDirectory(itemPath);
-      } else {
-        files[itemPath] = true;
+    const files: Record<string, any> = {};
+  
+    function traverseDirectory(currentDir: string, parentDirs: string[] = []) {
+      if (parentDirs.includes(currentDir)) {
+        // Prevent infinite recursion if a symlink or junction points back to a parent directory
+        return;
+      }
+  
+  
+      let dirContents;
+      try {
+        dirContents = fs.readdirSync(currentDir, { withFileTypes: true });
+      } catch (err) {
+        if (err.code === 'ENOENT') {
+          console.error(`Directory not found: ${currentDir}`);
+          return;
+        } else {
+          throw err;
+        }
+      }
+  
+      for (const item of dirContents) {
+        const itemPath = path.join(currentDir, item.name);
+        if (item.isDirectory()) {
+          files[itemPath] = 'directory';
+          traverseDirectory(itemPath, [...parentDirs, currentDir]);
+        } else {
+          files[itemPath] = 'file';
+        }
       }
     }
+  
+    traverseDirectory(directory);
+    return files;
   }
-
-  traverseDirectory(directory);
-  return files;
-}
 
 export async function GET({ url }: { url: URL }): Promise<Response> {
   try {
     const baseUrl = isDev ? `${url.origin}/data` : '/data';
-    const fileTree = buildFileTree(baseUrl);
+    const fileTree = buildFileTree(dataDir, baseUrl);
     return new Response(JSON.stringify(fileTree), {
       status: 200,
       headers: {
