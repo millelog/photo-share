@@ -71,7 +71,7 @@
   <div class="md:w-64 bg-xgray md:h-full">
     <FolderNav {folderTree} on:folderSelected={handleFolderSelected} />
   </div>
-  <div class="flex-1 overflow-y-scroll h-full">
+  <div class="flex-1 overflow-y-scroll h-full flex flex-col justify-between">
     <div class="sticky top-0 bg-xgray z-20 flex items-center justify-between">
       <h1 class="text-base md:text-2xl font-bold p-2 md:p-4 text-nowrap">
         {currentSelectedFolder ? getFolderName(currentSelectedFolder) : 'SELECT A FOLDER'}
