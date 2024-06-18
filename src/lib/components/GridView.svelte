@@ -124,7 +124,7 @@
 			/>
 		  </div>
 		  <button
-			class="absolute top-0 right-0 m-2 text-white text-3xl font-bold focus:outline-none"
+			class="absolute top-0 right-1 m-2 text-white text-3xl font-bold focus:outline-none"
 			on:click={closePreview}
 		  >
 			×
