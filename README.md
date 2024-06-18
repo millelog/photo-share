@@ -1,6 +1,6 @@
 # Photo Share
 
-Photo Share is a SvelteKit project designed for sharing and viewing photos and videos. It features a user-friendly interface for navigating folders, previewing files, and downloading selected items.
+Photo Share is a SvelteKit project designed for sharing and viewing photos and videos. It features a user-friendly interface for navigating folders, previewing files, and downloading selected items. Check out an example deployment at [photos.loganmiller.dev/wedding/photos](https://photos.loganmiller.dev/wedding/photos).
 
 ## Table of Contents
 
