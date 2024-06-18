@@ -1,6 +1,6 @@
 // src/routes/api/download/+server.ts
 import type { RequestHandler } from '@sveltejs/kit';
-import { resolve } from 'path';
+import { join, resolve } from 'path';
 import { createReadStream } from 'fs';
 import { stat } from 'fs/promises';
 
@@ -61,10 +61,13 @@ export const POST: RequestHandler = async ({ request }) => {
       }
     });
 
+    // Replace / or \ with -
+    const filename = filePath.replace(/[/\\]/g, '-');
+
     return new Response(stream, {
       headers: {
         'Content-Type': 'application/octet-stream',
-        'Content-Disposition': `attachment; filename="${filePath.split('/').pop()}"`,
+        'Content-Disposition': `attachment; filename="${filename}"`,
       },
     });
   } catch (error) {
