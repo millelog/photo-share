@@ -127,7 +127,7 @@
 				</button>
 				{#if selectedFileIndex > 0}
 					<button
-						class="fixed left-5 top-1/2 transform -translate-y-1/2 text-white text-4xl font-bold focus:outline-none hover:text-xteal"
+						class="fixed left-1 md:left-5 top-1/2 transform -translate-y-1/2 text-white text-4xl md:text-7xl font-bold focus:outline-none hover:text-xteal"
 						on:click={goToPreviousFile}
 					>
           &lsaquo;
@@ -135,7 +135,7 @@
 				{/if}
 				{#if selectedFileIndex < files.length - 1}
 					<button
-						class="fixed right-5 top-1/2 transform -translate-y-1/2 text-white text-4xl font-bold focus:outline-none hover:text-xteal"
+						class="fixed right-1 md:right-5 top-1/2 transform -translate-y-1/2 text-white text-4xl md:text-7xl font-bold focus:outline-none hover:text-xteal"
 						on:click={goToNextFile}
             
 						>
