@@ -1,6 +1,6 @@
 // src/routes/api/download/+server.ts
 import type { RequestHandler } from '@sveltejs/kit';
-import { join, resolve } from 'path';
+import { resolve } from 'path';
 import { createReadStream } from 'fs';
 import { stat } from 'fs/promises';
 
