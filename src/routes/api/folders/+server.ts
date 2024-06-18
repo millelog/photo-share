@@ -1,3 +1,4 @@
+//routes/api/folders/+server.ts
 import path from 'path';
 import fs from 'fs';
 import type { FolderItem } from '$lib/types';

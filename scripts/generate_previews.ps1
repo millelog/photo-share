@@ -1,3 +1,4 @@
+#scripts/generate_previews.ps1
 # Define paths
 $sourceDir = "C:\Users\Logan\Pictures\photo-share\wedding\photos"
 $destinationDir = Join-Path $sourceDir "prev"

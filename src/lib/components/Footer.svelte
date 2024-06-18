@@ -1,3 +1,4 @@
+<!--src/lib/components/Footer.svelte-->
 <footer class="bg-xgray text-white p-2 flex flex-col items-center md:flex-row md:justify-between px-8">
     <div class="text-center md:text-left mb-4 md:mb-0">
       <p class="text-lg font-bold text-balance">Like this website? Check out our business and leave us a review!</p>

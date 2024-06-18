@@ -1,3 +1,4 @@
+<!--routes/wedding/photos/+page.svelte-->
 <script lang="ts">
   import { page } from '$app/stores';
   import { onMount } from 'svelte';

@@ -1,3 +1,4 @@
+<!--src/lib/components/DownloadButton.svelte-->
 <script lang="ts">
 	import { selectedFilesStore } from '$lib/stores/selectedFilesStore';
 	import { get } from 'svelte/store';

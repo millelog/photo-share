@@ -1,3 +1,4 @@
+<!--src/lib/components/GridView.svelte-->
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import DownloadButton from './DownloadButton.svelte';

@@ -3,12 +3,17 @@ import type { RequestHandler } from '@sveltejs/kit';
 import { resolve } from 'path';
 import { createReadStream } from 'fs';
 import { stat } from 'fs/promises';
+import { PUBLIC_DEV_DATA_DIR, PUBLIC_PROD_DATA_DIR } from '$env/static/public';
 
 const isDev = process.env.NODE_ENV === 'development';
-const dataDir = isDev ? 'C:\\Users\\Logan\\Pictures\\photo-share' : '/data';
+const dataDir = isDev ? PUBLIC_DEV_DATA_DIR : PUBLIC_PROD_DATA_DIR;
 
 // Helper function to sanitize and validate file paths
 function sanitizeFilePath(filePath: string): string | null {
+  if(!dataDir) throw new Error('Data directory not set');
+  if (!filePath) {
+    return null;
+  }
   const resolvedPath = resolve(dataDir, filePath);
   if (resolvedPath.startsWith(dataDir)) {
     return resolvedPath;

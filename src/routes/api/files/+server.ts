@@ -1,21 +1,24 @@
+//routes/api/files/+server.ts
 import path from 'path';
 import fs from 'fs';
 import type { FileItem } from '$lib/types';
+import { dev } from '$app/environment';
+import { PUBLIC_DEV_DATA_DIR, PUBLIC_PROD_DATA_DIR } from '$env/static/public';
 
-const isDev = process.env.NODE_ENV === 'development';
-const dataDir = isDev ? 'C:\\Users\\Logan\\Pictures\\photo-share' : '/data';
+const dataDir = dev ? PUBLIC_DEV_DATA_DIR : PUBLIC_PROD_DATA_DIR;
 
 function getFileType(filePath: string): 'image' | 'video' | 'other' {
   const extension = path.extname(filePath).toLowerCase();
-  if (extension === '.jpg' || extension === '.jpeg' || extension === '.png' || extension === '.gif') {
+  if (['.jpg', '.jpeg', '.png', '.gif'].includes(extension)) {
     return 'image';
-  } else if (extension === '.mp4' || extension === '.avi' || extension === '.mov') {
+  } else if (['.mp4', '.avi', '.mov'].includes(extension)) {
     return 'video';
   }
   return 'other';
 }
 
 function getFilesInFolder(folderPath: string): FileItem[] {
+  if (!dataDir) throw new Error('Data directory not set');
   const absolutePath = path.join(dataDir, folderPath);
   const files = fs.readdirSync(absolutePath, { withFileTypes: true });
   const fileItems: FileItem[] = [];
@@ -43,6 +46,8 @@ function getFilesInFolder(folderPath: string): FileItem[] {
 }
 
 export async function GET({ url }: { url: URL }): Promise<Response> {
+
+  if (!dataDir) throw new Error('Data directory not set');
   const folderPath = url.searchParams.get('path') || '';
   const absoluteFolderPath = path.join(dataDir, folderPath);
 

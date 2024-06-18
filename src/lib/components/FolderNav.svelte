@@ -1,3 +1,4 @@
+<!--src/lib/components/FolderNav.svelte-->
 <script lang="ts">
   import { createEventDispatcher } from 'svelte';
   import type { FolderItem } from '$lib/types';
