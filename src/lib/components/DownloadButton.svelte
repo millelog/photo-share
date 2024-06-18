@@ -1,8 +1,9 @@
-<!-- src/lib/components/DownloadButton.svelte -->
 <script lang="ts">
 	import { selectedFilesStore } from '$lib/stores/selectedFilesStore';
+	import { get } from 'svelte/store';
 
 	export let currentSelectedFolder = '';
+	export let filePath = ''; // Optional parameter
 
 	let isDownloading = false;
 
@@ -10,28 +11,51 @@
 		isDownloading = true;
 
 		try {
-			const selectedFiles = $selectedFilesStore;
-
 			const formData = new FormData();
-			formData.append('folder', currentSelectedFolder);
-			formData.append('filePaths', selectedFiles.join(','));
 
-			const response = await fetch('/api/download', {
-				method: 'POST',
-				body: formData
-			});
+			if (filePath) {
+				formData.append('filePath', filePath);
 
-			if (response.ok) {
-				const blob = await response.blob();
-				const url = window.URL.createObjectURL(blob);
-				const link = document.createElement('a');
-				link.href = url;
-				link.download = `${currentSelectedFolder}.zip`;
-				link.click();
-				window.URL.revokeObjectURL(url);
+				const response = await fetch('/api/download', {
+					method: 'POST',
+					body: formData
+				});
+
+				if (response.ok) {
+					const blob = await response.blob();
+					const url = window.URL.createObjectURL(blob);
+					const link = document.createElement('a');
+					link.href = url;
+					link.download = filePath.split('/').pop() || 'downloaded_file';
+					link.click();
+					window.URL.revokeObjectURL(url);
+				} else {
+					console.error('Error downloading file:', response.statusText);
+					// Handle error scenario
+				}
 			} else {
-				console.error('Error downloading files:', response.statusText);
-				// Handle error scenario
+				const selectedFiles = get(selectedFilesStore);
+
+				formData.append('folder', currentSelectedFolder);
+				formData.append('filePaths', selectedFiles.join(','));
+
+				const response = await fetch('/api/downloadSelected', {
+					method: 'POST',
+					body: formData
+				});
+
+				if (response.ok) {
+					const blob = await response.blob();
+					const url = window.URL.createObjectURL(blob);
+					const link = document.createElement('a');
+					link.href = url;
+					link.download = `${currentSelectedFolder}.zip`;
+					link.click();
+					window.URL.revokeObjectURL(url);
+				} else {
+					console.error('Error downloading files:', response.statusText);
+					// Handle error scenario
+				}
 			}
 		} catch (error) {
 			console.error('Error downloading files:', error);
@@ -43,9 +67,11 @@
 </script>
 
 <button
-	class="bg-xteal hover:bg-xdteal text-xgray font-bold py-2 md:py-5 px-4 h-full cursor-pointer focus:outline-none"
+	class="bg-xteal hover:bg-xdteal text-xgray font-bold py-2 px-4 h-full cursor-pointer focus:outline-none {filePath
+		? 'md:py-2'
+		: 'md:py-4'}"
 	on:click={handleDownload}
-	disabled={!currentSelectedFolder || isDownloading}
+	disabled={(!currentSelectedFolder && !filePath) || isDownloading}
 >
 	{#if isDownloading}
 		<div class="flex flex-row">
@@ -64,7 +90,9 @@
 			</svg>
 			Downloading...
 		</div>
-	{:else}
-		Download
+	{:else if filePath !== ''}
+    Save
+  {:else}
+    Download
 	{/if}
 </button>

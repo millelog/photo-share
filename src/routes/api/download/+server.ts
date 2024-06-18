@@ -1,67 +1,61 @@
-// routes/api/download/+server.ts
+// src/routes/api/download/+server.ts
 import type { RequestHandler } from '@sveltejs/kit';
 import { join } from 'path';
-import archiver from 'archiver';
+import { createReadStream } from 'fs';
+import { stat } from 'fs/promises';
 
 const isDev = process.env.NODE_ENV === 'development';
 const dataDir = isDev ? 'C:\\Users\\Logan\\Pictures\\photo-share' : '/data';
 
 export const POST: RequestHandler = async ({ request }) => {
   const formData = await request.formData();
-  const folder = formData.get('folder') as string;
-  const filePathsString = formData.get('filePaths') as string;
+  const filePath = formData.get('filePath') as string;
 
-  if (!folder || !filePathsString) {
-    return new Response('Missing folder or file paths', {
+  if (!filePath) {
+    return new Response('Missing file path', {
       status: 400,
     });
   }
 
-  const filePaths = filePathsString.split(',');
+  const fullPath = join(dataDir, filePath);
 
-  const archive = archiver('zip', {
-    zlib: { level: 9 },
-  });
-
-  let archiveFinished = false;
-
-  const stream = new ReadableStream({
-    start(controller) {
-      archive.on('data', (data) => {
-        controller.enqueue(data);
+  try {
+    const fileStat = await stat(fullPath);
+    if (!fileStat.isFile()) {
+      return new Response('Not a valid file', {
+        status: 400,
       });
+    }
 
-      archive.on('end', () => {
-        archiveFinished = true;
-        controller.close();
-      });
+    const stream = new ReadableStream({
+      start(controller) {
+        const fileStream = createReadStream(fullPath);
 
-      archive.on('error', (err) => {
-        console.error('Error creating zip archive:', err);
-        controller.error(err);
-      });
-    },
-    cancel() {
-      if (!archiveFinished) {
-        archive.abort();
+        fileStream.on('data', (chunk) => {
+          controller.enqueue(chunk);
+        });
+
+        fileStream.on('end', () => {
+          controller.close();
+        });
+
+        fileStream.on('error', (err) => {
+          console.error('Error serving file:', err);
+          controller.error(err);
+        });
       }
-    }
-  });
+    });
 
-  for (const filePath of filePaths) {
-    const trimmedFilePath = filePath.trim();
-    if (trimmedFilePath !== '') {
-      const fullPath = join(dataDir, trimmedFilePath);
-      archive.file(fullPath, { name: trimmedFilePath });
-    }
+    return new Response(stream, {
+      headers: {
+        'Content-Type': 'application/octet-stream',
+        'Content-Disposition': `attachment; filename="${filePath.split('/').pop()}"`,
+      },
+    });
+  } catch (error) {
+    console.error('Error serving file:', error);
+    return new Response('Error serving file', {
+      status: 500,
+    });
   }
-
-  archive.finalize();
-
-  return new Response(stream, {
-    headers: {
-      'Content-Type': 'application/zip',
-      'Content-Disposition': `attachment; filename="${folder}.zip"`,
-    },
-  });
 };
