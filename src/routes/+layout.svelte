@@ -9,9 +9,12 @@
 	import { selectedFolder } from '$lib/stores/selectedFolderStore';
 	import { selectedFilesStore } from '$lib/stores/selectedFilesStore';
 	import Footer from '$lib/components/Footer.svelte';
+	import { page } from '$app/stores';
 
 	let folderTree: FolderItem[] = [{ name: '', path: '' }];
 	let currentSelectedFolder = '';
+	let currentUrl = '';
+
 
 	$: selectedFiles = $selectedFilesStore;
 
@@ -60,13 +63,73 @@
 
 	function getFolderName(filePath: string) {
 		const separator = process.env.NODE_ENV === 'production' ? '/' : '\\';
-		return (filePath.split(separator).pop() ?? '').toUpperCase();
+		//capitalize first letter after spaces or first char
+		return (filePath.split(separator).pop() ?? '').replace(/(^\w{1})|(\s+\w{1})/g, (letter) =>
+			letter.toUpperCase()
+		);
+	}
+
+	function getPathName(filePath: string) {
+		const separator = process.env.NODE_ENV === 'production' ? '/' : '\\';
+		const segments = filePath.split(separator).filter(Boolean);
+		const lastTwoSegments = segments.slice(-2); // Get the last two segments
+
+		return lastTwoSegments
+			.map((segment) => segment.replace(/(^\w{1})|(\s+\w{1})/g, (letter) => letter.toUpperCase()))
+			.join(' > ');
 	}
 
 	onMount(() => {
 		fetchFolderTree();
+		page.subscribe((p: { url: { href: string } }) => {
+			currentUrl = p.url.href;
+		});
 	});
 </script>
+
+<svelte:head>
+	<title
+		>{currentSelectedFolder
+			? `${getPathName(currentSelectedFolder)} - Photo Share`
+			: 'Photo Share'}</title
+	>
+	<meta
+		name="description"
+		content="A powerful and user-friendly photo sharing app allowing seamless navigation, previewing, and downloading of media files."
+	/>
+	<meta name="keywords" content="photo, sharing, app, media, gallery, preview, download" />
+	<meta name="author" content="Cascade Online" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<link rel="icon" type="image/png" href="/favicon.png" />
+	<!-- Open Graph / Facebook -->
+	<meta property="og:type" content="website" />
+	<meta
+		property="og:title"
+		content={currentSelectedFolder
+			? `${getFolderName(currentSelectedFolder)} - Photo Share`
+			: 'Photo Share'}
+	/>
+	<meta
+		property="og:description"
+		content="A powerful and user-friendly photo sharing app allowing seamless navigation, previewing, and downloading of media files."
+	/>
+	<meta property="og:image" content="/img/cascade_full_white.png" />
+	<meta property="og:url" content="{currentUrl}" />
+	<meta property="og:site_name" content="Photo Share" />
+	<!-- Twitter -->
+	<meta name="twitter:card" content="summary_large_image" />
+	<meta
+		name="twitter:title"
+		content={currentSelectedFolder
+			? `${getPathName(currentSelectedFolder)} - Photo Share`
+			: 'Photo Share'}
+	/>
+	<meta
+		name="twitter:description"
+		content="A powerful and user-friendly photo sharing app allowing seamless navigation, previewing, and downloading of media files."
+	/>
+	<meta name="twitter:image" content="/img/cascade_full_white.png" />
+</svelte:head>
 
 <div class="flex flex-col md:flex-row h-[100vh] bg-xgray text-white">
 	<div class="md:w-64 bg-xgray md:h-full">
@@ -75,8 +138,8 @@
 	<div class="flex-1 overflow-y-scroll h-full flex flex-col justify-between">
 		<div>
 			<div class="sticky top-0 bg-xgray z-20 flex items-center justify-between">
-				<h1 class="text-base md:text-2xl font-bold p-2 md:p-3 text-nowrap">
-					{currentSelectedFolder ? getFolderName(currentSelectedFolder) : 'SELECT A FOLDER'}
+				<h1 class="text-base md:text-2xl font-bold p-2 md:p-3 text-wrap shrink">
+					{currentSelectedFolder ? getPathName(currentSelectedFolder) : 'SELECT A FOLDER'}
 				</h1>
 				<div class="flex items-center">
 					<button
