@@ -1,11 +1,20 @@
 // src/routes/api/download/+server.ts
 import type { RequestHandler } from '@sveltejs/kit';
-import { join } from 'path';
+import { resolve } from 'path';
 import { createReadStream } from 'fs';
 import { stat } from 'fs/promises';
 
 const isDev = process.env.NODE_ENV === 'development';
 const dataDir = isDev ? 'C:\\Users\\Logan\\Pictures\\photo-share' : '/data';
+
+// Helper function to sanitize and validate file paths
+function sanitizeFilePath(filePath: string): string | null {
+  const resolvedPath = resolve(dataDir, filePath);
+  if (resolvedPath.startsWith(dataDir)) {
+    return resolvedPath;
+  }
+  return null;
+}
 
 export const POST: RequestHandler = async ({ request }) => {
   const formData = await request.formData();
@@ -17,10 +26,16 @@ export const POST: RequestHandler = async ({ request }) => {
     });
   }
 
-  const fullPath = join(dataDir, filePath);
+  const sanitizedFilePath = sanitizeFilePath(filePath);
+
+  if (!sanitizedFilePath) {
+    return new Response('Invalid file path', {
+      status: 400,
+    });
+  }
 
   try {
-    const fileStat = await stat(fullPath);
+    const fileStat = await stat(sanitizedFilePath);
     if (!fileStat.isFile()) {
       return new Response('Not a valid file', {
         status: 400,
@@ -29,7 +44,7 @@ export const POST: RequestHandler = async ({ request }) => {
 
     const stream = new ReadableStream({
       start(controller) {
-        const fileStream = createReadStream(fullPath);
+        const fileStream = createReadStream(sanitizedFilePath);
 
         fileStream.on('data', (chunk) => {
           controller.enqueue(chunk);

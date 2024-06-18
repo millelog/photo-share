@@ -1,10 +1,19 @@
-// routes/api/download/+server.ts
+// routes/api/downloadSelected/+server.ts
 import type { RequestHandler } from '@sveltejs/kit';
-import { join } from 'path';
+import { resolve } from 'path';
 import archiver from 'archiver';
 
 const isDev = process.env.NODE_ENV === 'development';
 const dataDir = isDev ? 'C:\\Users\\Logan\\Pictures\\photo-share' : '/data';
+
+// Helper function to sanitize and validate file paths
+function sanitizeFilePath(filePath: string): string | null {
+  const resolvedPath = resolve(dataDir, filePath);
+  if (resolvedPath.startsWith(dataDir)) {
+    return resolvedPath;
+  }
+  return null;
+}
 
 export const POST: RequestHandler = async ({ request }) => {
   const formData = await request.formData();
@@ -17,7 +26,7 @@ export const POST: RequestHandler = async ({ request }) => {
     });
   }
 
-  const filePaths = filePathsString.split(',');
+  const filePaths = filePathsString.split(',').map((filePath) => filePath.trim());
 
   const archive = archiver('zip', {
     zlib: { level: 9 },
@@ -49,10 +58,9 @@ export const POST: RequestHandler = async ({ request }) => {
   });
 
   for (const filePath of filePaths) {
-    const trimmedFilePath = filePath.trim();
-    if (trimmedFilePath !== '') {
-      const fullPath = join(dataDir, trimmedFilePath);
-      archive.file(fullPath, { name: trimmedFilePath });
+    const sanitizedFilePath = sanitizeFilePath(filePath);
+    if (sanitizedFilePath) {
+      archive.file(sanitizedFilePath, { name: filePath });
     }
   }
 
