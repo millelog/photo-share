@@ -138,12 +138,12 @@
 	<div class="flex-1 overflow-y-scroll h-full flex flex-col justify-between">
 		<div>
 			<div class="sticky top-0 bg-xgray z-20 flex items-center justify-between">
-				<h1 class="text-base md:text-2xl font-bold p-2 md:p-3 text-wrap shrink">
+				<h1 class="text-sm md:text-2xl font-bold p-2 md:p-3 text-wrap shrink">
 					{currentSelectedFolder ? getPathName(currentSelectedFolder) : 'SELECT A FOLDER'}
 				</h1>
 				<div class="flex items-center">
 					<button
-						class="bg-xteal hover:bg-xdteal text-xgray font-bold py-2 md:py-4 px-2 md:px-4 h-full cursor-pointer focus:outline-none mr-1 text-nowrap"
+						class="bg-xteal hover:bg-xdteal text-xgray font-bold py-2 md:py-4 px-1 md:px-4 h-full cursor-pointer focus:outline-none mr-1 text-nowrap text-sm md:text-base"
 						on:click={selectAll}
 					>
 						Select All
