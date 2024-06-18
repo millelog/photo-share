@@ -91,7 +91,7 @@
 	<title
 		>{currentSelectedFolder
 			? `${getPathName(currentSelectedFolder)} - Photo Share`
-			: 'Photo Share'}</title
+			: 'Photo Share - Cascade Online'}</title
 	>
 	<meta
 		name="description"
@@ -107,7 +107,7 @@
 		property="og:title"
 		content={currentSelectedFolder
 			? `${getFolderName(currentSelectedFolder)} - Photo Share`
-			: 'Photo Share'}
+			: 'Photo Share - Cascade Online'}
 	/>
 	<meta
 		property="og:description"
@@ -115,14 +115,14 @@
 	/>
 	<meta property="og:image" content="/img/cascade_full_white.png" />
 	<meta property="og:url" content="{currentUrl}" />
-	<meta property="og:site_name" content="Photo Share" />
+	<meta property="og:site_name" content="Photo Share - Cascade Online" />
 	<!-- Twitter -->
 	<meta name="twitter:card" content="summary_large_image" />
 	<meta
 		name="twitter:title"
 		content={currentSelectedFolder
 			? `${getPathName(currentSelectedFolder)} - Photo Share`
-			: 'Photo Share'}
+			: 'Photo Share - Cascade Online'}
 	/>
 	<meta
 		name="twitter:description"
