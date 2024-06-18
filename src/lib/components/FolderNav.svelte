@@ -20,7 +20,7 @@
   }
 </script>
 
-<nav class="bg-gray-900 text-white md:min-h-[100vh]">
+<nav class="bg-xdgray text-white md:min-h-[100vh]">
   <div class="flex justify-between items-center p-4 md:hidden">
     <h2 class="text-2xl font-bold">Folders</h2>
     <button on:click={toggleMenu} class="focus:outline-none">
@@ -33,7 +33,7 @@
     {#each folderTree as folder (folder.path)}
       <li class="" class:bg-teal-600={selectedFolder === folder.path}>
         <button
-          class="w-full text-left py-2 px-4 hover:bg-teal-600 focus:outline-none"
+          class="w-full text-left py-2 px-4 hover:bg-[#2AC2C6] focus:outline-none"
           on:click={() => handleFolderClick(folder.path)}
         >
           {folder.name}
@@ -43,7 +43,7 @@
             {#each folder.children as subFolder (subFolder.path)}
               <li class="" class:bg-teal-600={selectedFolder === subFolder.path}>
                 <button
-                  class="w-full text-left py-2 px-4 hover:bg-teal-600 focus:outline-none"
+                  class="w-full text-left py-2 px-4 hover:bg-[#2AC2C6] focus:outline-none"
                   on:click={() => handleFolderClick(subFolder.path)}
                 >
                   {subFolder.name}

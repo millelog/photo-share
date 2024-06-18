@@ -1,6 +1,8 @@
 <!-- src/lib/components/DownloadButton.svelte -->
 <script lang="ts">
     export let selectedFolder = '';
+    export let selectedFiles: string[] = [];
+
     let isDownloading = false;
   
     async function handleDownload() {
@@ -33,13 +35,13 @@
   </script>
   
   <button
-    class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
+    class="bg-xteal hover:bg-xdteal text-xgray font-bold py-5 px-4 h-full cursor-pointer focus:outline-none"
     on:click={handleDownload}
     disabled={!selectedFolder || isDownloading}
   >
     {#if isDownloading}
       <svg
-        class="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+        class="animate-spin -ml-1 mr-3 h-5 w-5 text-xgray"
         xmlns="http://www.w3.org/2000/svg"
         fill="none"
         viewBox="0 0 24 24"
