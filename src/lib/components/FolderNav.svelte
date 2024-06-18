@@ -20,7 +20,7 @@
   }
 </script>
 
-<nav class="bg-xdgray text-white md:min-h-[100vh]">
+<nav class="bg-xdgray text-white md:min-h-[100vh] md:h-full">
   <div class="flex justify-between items-center p-2 md:hidden">
     <h2 class="text-lg font-bold">Folders</h2>
     <button on:click={toggleMenu} class="focus:outline-none">
@@ -29,31 +29,31 @@
       </svg>
     </button>
   </div>
-  <ul class="space-y-2 overflow-y-auto md:block" class:hidden={!isOpen}>
+  <ul class="space-y-2 overflow-y-auto h-full md:block" class:hidden={!isOpen}>
     {#each folderTree as folder (folder.path)}
-      <li class="" class:bg-teal-600={selectedFolder === folder.path}>
+      <li class="relative pl-4 before:content-[''] before:absolute before:h-full before:w-px before:bg-teal-600 before:left-0">
         <button
-          class="w-full text-left py-2 px-4 hover:bg-[#2AC2C6] focus:outline-none"
+          class="w-full text-left py-2 px-4 hover:bg-[#2AC2C6] focus:outline-none {selectedFolder === folder.path ? 'bg-teal-600' : ''}"
           on:click={() => handleFolderClick(folder.path)}
         >
           {folder.name}
         </button>
         {#if folder.children && folder.children.length > 0}
-          <ul class="pl-4">
+          <ul class="pl-4 ml-2 before:content-[''] before:absolute before:h-full before:w-px before:bg-teal-600 before:left-[-8px]">
             {#each folder.children as subFolder (subFolder.path)}
-              <li class="" class:bg-teal-600={selectedFolder === subFolder.path}>
+              <li class="relative pl-4 before:content-[''] before:absolute before:h-full before:w-px before:bg-teal-600 before:left-0 after:content-[''] after:absolute after:h-px after:w-4 after:bg-teal-600 after:left-[-8px] after:top-[1.25rem]">
                 <button
-                  class="w-full text-left py-2 px-4 hover:bg-[#2AC2C6] focus:outline-none"
+                  class="w-full text-left py-2 px-4 hover:bg-[#2AC2C6] focus:outline-none {selectedFolder === subFolder.path ? 'bg-teal-600' : ''}"
                   on:click={() => handleFolderClick(subFolder.path)}
                 >
                   {subFolder.name}
                 </button>
                 {#if subFolder.children && subFolder.children.length > 0}
-                  <ul class="pl-4">
+                  <ul class="pl-4 ml-2 before:content-[''] before:absolute before:h-full before:w-px before:bg-teal-600 before:left-[-8px]">
                     {#each subFolder.children as subSubFolder (subSubFolder.path)}
-                      <li class="pl-2" class:bg-teal-600={selectedFolder === subSubFolder.path}>
+                      <li class="relative pl-4 before:content-[''] before:absolute before:h-full before:w-px before:bg-teal-600 before:left-0 after:content-[''] after:absolute after:h-px after:w-4 after:bg-teal-600 after:left-[-8px] after:top-[1.25rem]">
                         <button
-                          class="w-full text-left py-2 px-4 hover:bg-teal-600 focus:outline-none"
+                          class="w-full text-left py-2 px-4 hover:bg-teal-600 focus:outline-none {selectedFolder === subSubFolder.path ? 'bg-teal-600' : ''}"
                           on:click={() => handleFolderClick(subSubFolder.path)}
                         >
                           {subSubFolder.name}
@@ -70,3 +70,45 @@
     {/each}
   </ul>
 </nav>
+
+<style>
+  .selected {
+    background-color: #2AC2C6;
+  }
+  .before\:content-\[\'\'\]::before {
+    content: '';
+  }
+  .before\:h-full::before {
+    height: 100%;
+  }
+  .before\:w-px::before {
+    width: 1px;
+  }
+  .before\:bg-teal-600::before {
+    background-color: #2AC2C6;
+  }
+  .before\:left-0::before {
+    left: 0;
+  }
+  .before\:left-\[-8px\]::before {
+    left: -8px;
+  }
+  .after\:content-\[\'\'\]::after {
+    content: '';
+  }
+  .after\:h-px::after {
+    height: 1px;
+  }
+  .after\:w-4::after {
+    width: 1rem;
+  }
+  .after\:bg-teal-600::after {
+    background-color: #2AC2C6;
+  }
+  .after\:left-\[-8px\]::after {
+    left: -8px;
+  }
+  .after\:top-\[1\.25rem\]::after {
+    top: 1.25rem;
+  }
+</style>

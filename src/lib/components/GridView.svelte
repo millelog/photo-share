@@ -1,63 +1,65 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
-	import type { FileItem } from '$lib/types';
+  import { onMount } from 'svelte';
+  import type { FileItem } from '$lib/types';
+  import { selectedFilesStore } from '$lib/stores/selectedFilesStore';
 
-	export let currentSelectedFolder = '';
-	export let selectedFiles: string[] = [];
-	
+  export let currentSelectedFolder = '';
+  
   let files: FileItem[] = [];
-	let selectedFile: FileItem | null = null;
-	let selectedFileIndex: number = 0;
-	let checkedFiles: Record<string, boolean> = {};
+  let selectedFile: FileItem | null = null;
+  let selectedFileIndex: number = 0;
+  let checkedFiles: Record<string, boolean> = {};
 
-	async function fetchFiles() {
-		const response = await fetch(`/api/files?path=${encodeURIComponent(currentSelectedFolder)}`);
-		files = await response.json();
-		checkedFiles = {};
-		files.forEach((file) => {
-			checkedFiles[file.path] = selectedFiles.includes(file.path);
-		});
-	}
+  $: selectedFiles = $selectedFilesStore;
 
-	function openPreview(file: FileItem) {
-		selectedFile = file;
-		selectedFileIndex = files.findIndex((f) => f.path === file.path);
-	}
+  async function fetchFiles() {
+    const response = await fetch(`/api/files?path=${encodeURIComponent(currentSelectedFolder)}`);
+    files = await response.json();
+    checkedFiles = {};
+    files.forEach((file) => {
+      checkedFiles[file.path] = selectedFiles.includes(file.path);
+    });
+  }
 
-	function closePreview() {
-		selectedFile = null;
-	}
+  function openPreview(file: FileItem) {
+    selectedFile = file;
+    selectedFileIndex = files.findIndex((f) => f.path === file.path);
+  }
 
-	function toggleFileSelection(event: Event, filePath?: string) {
-		if (!filePath) return;
-		event.stopPropagation();
-		checkedFiles[filePath] = !checkedFiles[filePath];
-		if (checkedFiles[filePath]) {
-			selectedFiles = [...selectedFiles, filePath];
-		} else {
-			selectedFiles = selectedFiles.filter((path) => path !== filePath);
-		}
-	}
+  function closePreview() {
+    selectedFile = null;
+  }
 
-	function goToPreviousFile() {
-		if (selectedFileIndex > 0) {
-			selectedFileIndex--;
-			selectedFile = files[selectedFileIndex];
-		}
-	}
+  function toggleFileSelection(event: Event, filePath?: string) {
+    if (!filePath) return;
+    event.stopPropagation();
+    checkedFiles[filePath] = !checkedFiles[filePath];
+    if (checkedFiles[filePath]) {
+      selectedFilesStore.add(filePath);
+    } else {
+      selectedFilesStore.remove(filePath);
+    }
+  }
 
-	function goToNextFile() {
-		if (selectedFileIndex < files.length - 1) {
-			selectedFileIndex++;
-			selectedFile = files[selectedFileIndex];
-		}
-	}
+  function goToPreviousFile() {
+    if (selectedFileIndex > 0) {
+      selectedFileIndex--;
+      selectedFile = files[selectedFileIndex];
+    }
+  }
 
-	$: {
-		if (currentSelectedFolder) {
-			fetchFiles();
-		}
-	}
+  function goToNextFile() {
+    if (selectedFileIndex < files.length - 1) {
+      selectedFileIndex++;
+      selectedFile = files[selectedFileIndex];
+    }
+  }
+
+  $: {
+    if (currentSelectedFolder) {
+      fetchFiles();
+    }
+  }
 </script>
 
 <div class="">
@@ -89,56 +91,58 @@
 		{/each}
 	</div>
 </div>
-
 {#if selectedFile}
 	<div
 		class="fixed top-0 left-0 w-full h-full bg-black bg-opacity-75 flex items-center justify-center z-50"
 		on:click={closePreview}
 	>
-		<div class="relative w-full h-full max-h-[100vh] max-w-[100vw] m-auto" on:click|stopPropagation>
-			{#if selectedFile.type === 'image'}
-				<img
-					src={selectedFile.fullUrl}
-					alt={selectedFile.name}
-					class="w-auto h-auto max-h-full max-w-full m-auto rounded-md"
-				/>
-			{:else if selectedFile.type === 'video'}
-				<video
-					src={selectedFile.fullUrl}
-					class="w-auto h-auto max-h-full max-w-full m-auto rounded-md"
-					controls
-				/>
-			{/if}
-			<div class="absolute top-0 left-0 p-2 z-50">
-				<input
-					type="checkbox"
-					class="form-checkbox h-8 w-8 text-xteal rounded-full"
-					bind:checked={checkedFiles[selectedFile.path]}
-					on:click|stopPropagation={(event) => toggleFileSelection(event, selectedFile?.path)}
-				/>
+		<div class="relative w-auto h-auto max-h-[90vh] max-w-[90vw] m-auto" on:click|stopPropagation>
+			<div class="relative">
+				{#if selectedFile.type === 'image'}
+					<img
+						src={selectedFile.fullUrl}
+						alt={selectedFile.name}
+						class="w-auto h-auto max-h-[90vh] max-w-[90vw] m-auto rounded-md"
+					/>
+				{:else if selectedFile.type === 'video'}
+					<video
+						src={selectedFile.fullUrl}
+						class="w-auto h-auto max-h-[90vh] max-w-[90vw] m-auto rounded-md"
+						controls
+					/>
+				{/if}
+				<div class="absolute top-0 left-0 p-2">
+					<input
+						type="checkbox"
+						class="form-checkbox h-8 w-8 accent-xteal rounded-full cursor-pointer"
+						bind:checked={checkedFiles[selectedFile.path]}
+						on:click|stopPropagation={(event) => toggleFileSelection(event, selectedFile?.path)}
+					/>
+				</div>
+				<button
+					class="absolute top-0 right-0 m-2 text-white text-3xl font-bold focus:outline-none"
+					on:click={closePreview}
+				>
+					×
+				</button>
+				{#if selectedFileIndex > 0}
+					<button
+						class="fixed left-5 top-1/2 transform -translate-y-1/2 text-white text-4xl font-bold focus:outline-none hover:text-xteal"
+						on:click={goToPreviousFile}
+					>
+          &lsaquo;
+					</button>
+				{/if}
+				{#if selectedFileIndex < files.length - 1}
+					<button
+						class="fixed right-5 top-1/2 transform -translate-y-1/2 text-white text-4xl font-bold focus:outline-none hover:text-xteal"
+						on:click={goToNextFile}
+            
+						>
+            &rsaquo;
+					</button>
+				{/if}
 			</div>
-			<button
-				class="absolute top-0 right-0 m-4 text-white text-3xl font-bold focus:outline-none z-50"
-				on:click={closePreview}
-			>
-				&times;
-			</button>
 		</div>
-		{#if selectedFileIndex > 0}
-			<button
-				class="absolute left-5 top-1/2 transform -translate-y-1/2 text-white text-4xl font-bold focus:outline-none z-50"
-				on:click={goToPreviousFile}
-			>
-				&lt;
-			</button>
-		{/if}
-		{#if selectedFileIndex < files.length - 1}
-			<button
-				class="absolute right-5 top-1/2 transform -translate-y-1/2 text-white text-4xl font-bold focus:outline-none z-50"
-				on:click={goToNextFile}
-			>
-				&gt;
-			</button>
-		{/if}
 	</div>
 {/if}
