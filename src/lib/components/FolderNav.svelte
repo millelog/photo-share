@@ -20,7 +20,7 @@
   }
 </script>
 
-<nav class="bg-xdgray text-white md:min-h-[100vh] md:h-full">
+<nav class="bg-xdgray text-white md:min-h-[100vh] md:h-full flex flex-col">
   <div class="flex justify-between items-center p-2 md:hidden">
     <h2 class="text-lg font-bold">Folders</h2>
     <button on:click={toggleMenu} class="focus:outline-none">
@@ -29,9 +29,9 @@
       </svg>
     </button>
   </div>
-  <ul class="space-y-2 overflow-y-auto h-full md:block" class:hidden={!isOpen}>
+  <ul class="space-y-2 overflow-y-auto flex-grow md:block pb-4 md:pb-4" class:hidden={!isOpen}>
     {#each folderTree as folder (folder.path)}
-      <li class="relative pl-4 before:content-[''] before:absolute before:h-full before:w-px before:bg-teal-600 before:left-0">
+      <li class="relative pl-4 before:content-[''] before:absolute before:h-full before:w-px before:bg-teal-600 before:left-0 ">
         <button
           class="w-full text-left py-2 px-4 hover:bg-[#2AC2C6] focus:outline-none {selectedFolder === folder.path ? 'bg-teal-600' : ''}"
           on:click={() => handleFolderClick(folder.path)}
@@ -69,6 +69,9 @@
       </li>
     {/each}
   </ul>
+  <a href="https://www.cascadeonlinedesign.com" class="hidden md:block pb-4">
+    <img src="/img/cascade_full_white.png" alt="Cascade Online Design" class="mx-auto w-full max-w-[130px]" />
+  </a>
 </nav>
 
 <style>

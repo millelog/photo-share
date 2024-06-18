@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import Footer from './Footer.svelte';
   import type { FileItem } from '$lib/types';
   import { selectedFilesStore } from '$lib/stores/selectedFilesStore';
 
@@ -91,6 +92,7 @@
 		{/each}
 	</div>
 </div>
+<Footer />
 {#if selectedFile}
 	<div
 		class="fixed top-0 left-0 w-full h-full bg-black bg-opacity-75 flex items-center justify-center z-50"
