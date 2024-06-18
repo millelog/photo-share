@@ -2,7 +2,7 @@
 	import { onMount } from 'svelte';
 	import type { FileItem } from '$lib/types';
 
-	export let selectedFolder = '';
+	export let currentSelectedFolder = '';
 	export let selectedFiles: string[] = [];
 	
   let files: FileItem[] = [];
@@ -11,7 +11,7 @@
 	let checkedFiles: Record<string, boolean> = {};
 
 	async function fetchFiles() {
-		const response = await fetch(`/api/files?path=${encodeURIComponent(selectedFolder)}`);
+		const response = await fetch(`/api/files?path=${encodeURIComponent(currentSelectedFolder)}`);
 		files = await response.json();
 		checkedFiles = {};
 		files.forEach((file) => {
@@ -54,25 +54,23 @@
 	}
 
 	$: {
-		if (selectedFolder) {
+		if (currentSelectedFolder) {
 			fetchFiles();
 		}
 	}
 </script>
 
 <div class="">
-	<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-0">
+	<div class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-0">
 		{#each files as file (file.path)}
 			<div
-				class="bg-gray-800 relative cursor-pointer group"
+				class="bg-xgray relative cursor-pointer group"
 				on:click|stopPropagation={() => openPreview(file)}
 			>
 				<div class="absolute top-0 left-0 p-2 z-10">
 					<input
 						type="checkbox"
-						class="form-checkbox h-5 w-5 text-xteal {checkedFiles[file.path]
-							? ''
-							: 'opacity-0'} group-hover:opacity-100 transition-opacity duration-200 image-checkbox"
+						class="form-checkbox h-5 w-5 accent-xteal image-checkbox"
 						bind:checked={checkedFiles[file.path]}
 						on:click|stopPropagation={(event) => toggleFileSelection(event, file.path)}
 					/>

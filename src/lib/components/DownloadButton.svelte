@@ -1,6 +1,6 @@
 <!-- src/lib/components/DownloadButton.svelte -->
 <script lang="ts">
-    export let selectedFolder = '';
+    export let currentSelectedFolder = '';
     export let selectedFiles: string[] = [];
 
     let isDownloading = false;
@@ -9,7 +9,7 @@
       isDownloading = true;
   
       try {
-        const response = await fetch(`/api/download?folder=${selectedFolder}`, {
+        const response = await fetch(`/api/download?folder=${currentSelectedFolder}`, {
           method: 'POST',
         });
   
@@ -18,7 +18,7 @@
           const url = window.URL.createObjectURL(blob);
           const link = document.createElement('a');
           link.href = url;
-          link.download = `${selectedFolder}.zip`;
+          link.download = `${currentSelectedFolder}.zip`;
           link.click();
           window.URL.revokeObjectURL(url);
         } else {
@@ -35,9 +35,9 @@
   </script>
   
   <button
-    class="bg-xteal hover:bg-xdteal text-xgray font-bold py-5 px-4 h-full cursor-pointer focus:outline-none"
+    class="bg-xteal hover:bg-xdteal text-xgray font-bold py-4 md:py-5 px-4 h-full cursor-pointer focus:outline-none"
     on:click={handleDownload}
-    disabled={!selectedFolder || isDownloading}
+    disabled={!currentSelectedFolder || isDownloading}
   >
     {#if isDownloading}
       <svg
