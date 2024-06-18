@@ -143,7 +143,7 @@
 			  &rsaquo;
 			</button>
 		  {/if}
-		  <div class="absolute bottom-1 left-0 right-0 flex justify-center">
+		  <div class="absolute bottom-[-35px] md:bottom-1 left-0 right-0 flex justify-center">
 			<DownloadButton {currentSelectedFolder} filePath={selectedFile.path} />
 		  </div>
 		</div>
