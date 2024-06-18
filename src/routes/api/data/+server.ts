@@ -8,9 +8,7 @@ const dataDir = isDev ? 'C:\\Users\\Logan\\Pictures\\photo-share' : '/data';
 export async function GET({ url }: { url: URL }): Promise<Response> {
   try {
     const filePath = url.searchParams.get('path');
-
-    console.log('File Path:', filePath);
-
+    
     if (filePath) {
       const absolutePath = path.join(dataDir, filePath);
       
