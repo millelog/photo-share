@@ -10,11 +10,12 @@
 	import { selectedFilesStore } from '$lib/stores/selectedFilesStore';
 	import Footer from '$lib/components/Footer.svelte';
 	import { page } from '$app/stores';
+	import { writable } from 'svelte/store';
 
 	let folderTree: FolderItem[] = [{ name: '', path: '' }];
 	let currentSelectedFolder = '';
 	let currentUrl = '';
-
+	let isLoading = writable(true);
 
 	$: selectedFiles = $selectedFilesStore;
 
@@ -23,8 +24,10 @@
 	});
 
 	async function fetchFolderTree() {
+		isLoading.set(true);
 		const response = await fetch('/api/folders');
 		folderTree = await response.json();
+		isLoading.set(false);
 	}
 
 	function handleFolderSelected(event: CustomEvent<string>) {
@@ -91,8 +94,8 @@
 	<title
 		>{currentSelectedFolder
 			? `${getPathName(currentSelectedFolder)} - Photo Share`
-			: 'Photo Share - Cascade Online'}</title
-	>
+			: 'Photo Share - Cascade Online'}
+	</title>
 	<meta
 		name="description"
 		content="A powerful and user-friendly photo sharing app allowing seamless navigation, previewing, and downloading of media files."
@@ -114,7 +117,7 @@
 		content="A powerful and user-friendly photo sharing app allowing seamless navigation, previewing, and downloading of media files."
 	/>
 	<meta property="og:image" content="/img/cascade_full_white.png" />
-	<meta property="og:url" content="{currentUrl}" />
+	<meta property="og:url" content={currentUrl} />
 	<meta property="og:site_name" content="Photo Share - Cascade Online" />
 	<!-- Twitter -->
 	<meta name="twitter:card" content="summary_large_image" />
@@ -133,27 +136,45 @@
 
 <div class="flex flex-col md:flex-row h-[100vh] bg-xgray text-white">
 	<div class="md:w-64 bg-xgray md:h-full">
-		<FolderNav {folderTree} on:folderSelected={handleFolderSelected} />
+	  <FolderNav {folderTree} on:folderSelected={handleFolderSelected} />
 	</div>
 	<div class="flex-1 overflow-y-scroll h-full flex flex-col justify-between">
-		<div>
-			<div class="sticky top-0 bg-xgray z-20 flex items-center justify-between">
-				<h1 class="text-sm md:text-2xl font-bold p-2 md:p-3 text-wrap shrink">
-					{currentSelectedFolder ? getPathName(currentSelectedFolder) : 'SELECT A FOLDER'}
-				</h1>
-				<div class="flex items-center">
-					<button
-						class="bg-xteal hover:bg-xdteal text-xgray font-bold py-2 md:py-4 px-1 md:px-4 h-full cursor-pointer focus:outline-none mr-1 text-nowrap text-sm md:text-base"
-						on:click={selectAll}
-					>
-						Select All
-					</button>
-					<DownloadButton {currentSelectedFolder} />
-				</div>
-			</div>
-			<GridView {currentSelectedFolder} />
+	  <div>
+		<div class="sticky top-0 bg-xgray z-20 flex items-center justify-between">
+		  <h1 class="text-sm md:text-2xl font-bold p-2 md:p-3 text-wrap shrink">
+			{currentSelectedFolder ? getPathName(currentSelectedFolder) : 'SELECT A FOLDER'}
+		  </h1>
+		  <div class="flex items-center">
+			<button
+			  class="bg-xteal hover:bg-xdteal text-xgray font-bold py-2 md:py-4 px-1 md:px-4 h-full cursor-pointer focus:outline-none mr-1 text-nowrap text-sm md:text-base"
+			  on:click={selectAll}
+			>
+			  Select All
+			</button>
+			<DownloadButton {currentSelectedFolder} />
+		  </div>
 		</div>
-		<Footer />
+		{#if $isLoading}
+		  <div class="flex items-center justify-center h-[90vh]">
+			<svg
+			  class="animate-spin h-8 w-8 text-white"
+			  xmlns="http://www.w3.org/2000/svg"
+			  fill="none"
+			  viewBox="0 0 24 24"
+			>
+			  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+			  <path
+				class="opacity-75"
+				fill="currentColor"
+				d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+			  ></path>
+			</svg>
+		  </div>
+		{:else}
+		  <GridView {currentSelectedFolder} />
+		{/if}
+	  </div>
+	  <Footer />
 	</div>
-</div>
-<slot />
+  </div>
+  <slot />

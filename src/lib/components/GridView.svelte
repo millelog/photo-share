@@ -1,7 +1,8 @@
-<!--src/lib/components/GridView.svelte-->
+<!-- src/lib/components/GridView.svelte -->
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import DownloadButton from './DownloadButton.svelte';
+	import ImageViewer from './ImageViewer.svelte';
 	import type { FileItem } from '$lib/types';
 	import { selectedFilesStore } from '$lib/stores/selectedFilesStore';
 	import { writable } from 'svelte/store';
@@ -9,22 +10,36 @@
 	export let currentSelectedFolder = '';
 
 	let files: FileItem[] = [];
+	let selectedFiles: string[] = [];
 	let selectedFile: FileItem | null = null;
 	let selectedFileIndex: number = 0;
 	let checkedFiles: Record<string, boolean> = {};
-	let loading = writable(false); // Loading state
+	let loading = writable(false);
 
-	$: selectedFiles = $selectedFilesStore;
+	$: {
+		selectedFiles = $selectedFilesStore;
+		initializeCheckedFiles();
+	}
+
+	function initializeCheckedFiles() {
+		checkedFiles = selectedFiles.reduce(
+			(acc, filePath) => {
+				acc[filePath] = true;
+				return acc;
+			},
+			{} as Record<string, boolean>
+		);
+	}
 
 	async function fetchFiles() {
-		loading.set(true); // Set loading to true before fetching files
-		const response = await fetch(`/api/files?path=${encodeURIComponent(currentSelectedFolder)}`);
+		loading.set(true);
+		const viewportWidth = window.innerWidth;
+		const response = await fetch(
+			`/api/files?path=${encodeURIComponent(currentSelectedFolder)}&viewportWidth=${viewportWidth}`
+		);
 		files = await response.json();
-		checkedFiles = {};
-		files.forEach((file) => {
-			checkedFiles[file.path] = selectedFiles.includes(file.path);
-		});
-		loading.set(false); // Set loading to false after fetching files
+		initializeCheckedFiles();
+		loading.set(false);
 	}
 
 	function openPreview(file: FileItem) {
@@ -36,7 +51,7 @@
 		selectedFile = null;
 	}
 
-	function toggleFileSelection(event: Event, filePath?: string) {
+	function toggleFileSelection(event: MouseEvent, filePath?: string) {
 		if (!filePath) return;
 		event.stopPropagation();
 		checkedFiles[filePath] = !checkedFiles[filePath];
@@ -70,7 +85,7 @@
 
 <div class="relative">
 	{#if $loading}
-		<div class="flex items-center justify-center h-full">
+		<div class="flex items-center justify-center h-[90vh]">
 			<svg
 				class="animate-spin h-8 w-8 text-white"
 				xmlns="http://www.w3.org/2000/svg"
@@ -101,13 +116,12 @@
 							on:click|stopPropagation={(event) => toggleFileSelection(event, file.path)}
 						/>
 					</div>
-					{#if file.type === 'image'}
-						<img src={file.previewUrl} alt={file.name} class="w-full h-48 object-cover" />
-					{:else if file.type === 'video'}
-						<video src={file.fullUrl} class="w-full h-48 object-cover" />
-					{/if}
+					<img src={file.previewUrl} alt={file.name} class="w-full h-48 object-cover" />
 					<div
-						class="absolute bottom-0 left-0 right-0 px-2 py-1 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+						class="absolute bottom-0 left-0 right-0 px-2 py-1 bg-black bg-opacity-50 {file.type ==
+						'image'
+							? 'opacity-0'
+							: ''} group-hover:opacity-100 transition-opacity duration-200"
 					>
 						<p class="text-sm truncate text-white">{file.name}</p>
 					</div>
@@ -117,58 +131,14 @@
 	{/if}
 
 	{#if selectedFile}
-		<div
-			class="fixed top-0 left-0 w-full h-full bg-black bg-opacity-75 flex items-center justify-center z-50"
-			on:click={closePreview}
-		>
-			<div class="relative w-auto h-auto max-h-[90vh] max-w-[90vw] m-auto" on:click|stopPropagation>
-				<div class="relative">
-					{#if selectedFile.type === 'image'}
-						<img
-							src={selectedFile.fullUrl}
-							alt={selectedFile.name}
-							class="w-auto h-auto max-h-[90vh] max-w-[90vw] m-auto rounded-md"
-						/>
-					{:else if selectedFile.type === 'video'}
-						<video
-							src={selectedFile.fullUrl}
-							class="w-auto h-auto max-h-[90vh] max-w-[90vw] m-auto rounded-md"
-							controls
-						/>
-					{/if}
-					<div class="absolute top-0 left-0 p-2">
-						<input
-							type="checkbox"
-							class="form-checkbox h-8 w-8 accent-xteal rounded-full cursor-pointer"
-							bind:checked={checkedFiles[selectedFile.path]}
-							on:click|stopPropagation={(event) => toggleFileSelection(event, selectedFile?.path)}
-						/>
-					</div>
-					<button
-						class="absolute top-0 right-1 m-2 text-white text-3xl font-bold focus:outline-none"
-						on:click={closePreview}>×</button
-					>
-					{#if selectedFileIndex > 0}
-						<button
-							class="fixed left-1 md:left-5 top-1/2 transform -translate-y-1/2 text-white text-4xl md:text-7xl font-bold focus:outline-none hover:text-xteal"
-							on:click={goToPreviousFile}
-						>
-							&lsaquo;
-						</button>
-					{/if}
-					{#if selectedFileIndex < files.length - 1}
-						<button
-							class="fixed right-1 md:right-5 top-1/2 transform -translate-y-1/2 text-white text-4xl md:text-7xl font-bold focus:outline-none hover:text-xteal"
-							on:click={goToNextFile}
-						>
-							&rsaquo;
-						</button>
-					{/if}
-					<div class="absolute bottom-[-35px] md:bottom-1 left-0 right-0 flex justify-center">
-						<DownloadButton {currentSelectedFolder} filePath={selectedFile.path} />
-					</div>
-				</div>
-			</div>
-		</div>
+		<ImageViewer
+			file={selectedFile}
+			{checkedFiles}
+			{currentSelectedFolder}
+			on:close={closePreview}
+			on:previous={goToPreviousFile}
+			on:next={goToNextFile}
+			on:select={(event) => toggleFileSelection(event.detail.event, event.detail.path)}
+		/>
 	{/if}
 </div>

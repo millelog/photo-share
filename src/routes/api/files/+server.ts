@@ -1,4 +1,4 @@
-//routes/api/files/+server.ts
+// routes/api/files/+server.ts
 import path from 'path';
 import fs from 'fs';
 import type { FileItem } from '$lib/types';
@@ -17,45 +17,79 @@ function getFileType(filePath: string): 'image' | 'video' | 'other' {
   return 'other';
 }
 
-function getFilesInFolder(folderPath: string): FileItem[] {
+function getPreviewSize(viewportWidth: number): number {
+  if (viewportWidth <= 640) {
+    return 350;
+  } else if (viewportWidth <= 1024) {
+    return 450;
+  } else {
+    return 550;
+  }
+}
+
+function getFilesInFolder(folderPath: string, viewportWidth: number): FileItem[] {
   if (!dataDir) throw new Error('Data directory not set');
   const absolutePath = path.join(dataDir, folderPath);
   const files = fs.readdirSync(absolutePath, { withFileTypes: true });
   const fileItems: FileItem[] = [];
+  const previewSize = getPreviewSize(viewportWidth);
 
   for (const file of files) {
     if (file.isFile()) {
       const filePath = path.join(absolutePath, file.name);
       const relativePath = path.relative(dataDir, filePath);
-      const previewPath = path.relative(dataDir, path.join(absolutePath, 'prev', file.name));
       const fileType = getFileType(file.name);
-      const previewUrl = fileType !== 'other' ? `/api/data?path=${encodeURIComponent(previewPath)}` : undefined;
-      const fullUrl = fileType !== 'other' ? `/api/data?path=${encodeURIComponent(relativePath)}` : undefined;
 
-      fileItems.push({
-        name: file.name,
-        path: relativePath,
-        type: fileType,
-        previewUrl: previewUrl,
-        fullUrl: fullUrl,
-      });
+      if (fileType === 'image') {
+        const previewUrl = `/api/image?path=${encodeURIComponent(relativePath)}&size=${previewSize}`;
+        const fullUrl = `/api/image?path=${encodeURIComponent(relativePath)}`;
+
+        fileItems.push({
+          name: file.name,
+          path: relativePath,
+          type: fileType,
+          previewUrl: previewUrl,
+          fullUrl: fullUrl,
+        });
+      } else if (fileType === 'video') {
+        const previewUrl = `/img/video_thumbnail.png`;
+        const fullUrl = `/api/data?path=${encodeURIComponent(relativePath)}`;
+
+        fileItems.push({
+          name: file.name,
+          path: relativePath,
+          type: fileType,
+          previewUrl: previewUrl,
+          fullUrl: fullUrl,
+        });
+      } else {
+        const fullUrl = `/api/data?path=${encodeURIComponent(relativePath)}`;
+
+        fileItems.push({
+          name: file.name,
+          path: relativePath,
+          type: fileType,
+          fullUrl: fullUrl,
+        });
+      }
     }
   }
 
   return fileItems;
 }
 
-export async function GET({ url }: { url: URL }): Promise<Response> {
 
+export async function GET({ url }: { url: URL }): Promise<Response> {
   if (!dataDir) throw new Error('Data directory not set');
   const folderPath = url.searchParams.get('path') || '';
+  const viewportWidth = parseInt(url.searchParams.get('viewportWidth') || '0', 10);
   const absoluteFolderPath = path.join(dataDir, folderPath);
 
   if (!fs.existsSync(absoluteFolderPath)) {
     return new Response('Folder not found', { status: 404 });
   }
 
-  const files = getFilesInFolder(folderPath);
+  const files = getFilesInFolder(folderPath, viewportWidth);
 
   return new Response(JSON.stringify(files), {
     status: 200,

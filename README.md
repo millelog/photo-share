@@ -12,7 +12,6 @@ Photo Share is a SvelteKit project designed for sharing and viewing photos and v
 - [Features](#features)
 - [Folder Navigation](#folder-navigation)
 - [Preview and Download](#preview-and-download)
-- [Scripts](#scripts)
 - [Deploying as a Docker Container](#deploying-as-a-docker-container)
 - [Contributing](#contributing)
 - [License](#license)
@@ -77,47 +76,37 @@ Photo Share supports the following file types:
 
 Other file types will be listed but not previewed.
 
+Sure! Here's an updated description of the components in the README file, including the `ImageViewer` component:
+
 ## Features
 
 ### Folder Navigation
 
 The folder navigation component (`FolderNav.svelte`) allows users to browse through directories and select folders to view their contents.
 
-### Preview and Download
+### Grid View
 
-- **GridView**: Displays a grid of media files. Clicking on a file opens a preview.
-- **Preview**: Users can preview images and videos in a modal.
-- **Download**: Users can select individual files or all files in a folder for download.
+The grid view component (`GridView.svelte`) displays a grid of media files (images and videos) in the selected folder. It allows users to:
+- Preview files by clicking on them
+- Select individual files using checkboxes
+- Open a full-size preview of a file
 
-### Scripts
+### Image Viewer
 
-The project includes a PowerShell script (`generate_previews.ps1`) for generating preview images using `ffmpeg`. This script resizes images for faster loading:
+The image viewer component (`ImageViewer.svelte`) provides a full-size preview of a selected image or video file. It offers the following features:
+- Displays the full-size image or video
+- Allows navigation to the previous or next file in the folder
+- Provides a checkbox to select/deselect the current file
+- Offers a download button to save the current file
+- Supports closing the preview and returning to the grid view
 
-```powershell
-# Define paths
-$sourceDir = "C:\Users\Logan\Pictures\photo-share\wedding\photos"
-$destinationDir = Join-Path $sourceDir "prev"
+### Download
 
-# Create destination directory if it doesn't exist
-if (-Not (Test-Path $destinationDir)) {
-    New-Item -ItemType Directory -Path $destinationDir | Out-Null
-}
+The download component (`DownloadButton.svelte`) allows users to download selected files or all files in a folder. It provides the following options:
+- Download selected files: Users can select individual files using checkboxes in the grid view and click the download button to download them as a ZIP archive.
+- Download all files in a folder: Users can click the download button without selecting any files to download all files in the current folder as a ZIP archive.
 
-# Function to resize image using ffmpeg
-function Resize-Image($inputPath, $outputPath, $maxSize) {
-    $command = "ffmpeg -i `"$inputPath`" -vf `"scale='if(gt(iw,ih),$maxSize,-1)':'if(gt(iw,ih),-1,$maxSize)'`" `"$outputPath`""
-    Invoke-Expression $command
-}
-
-# Process all jpg files in the source directory
-Get-ChildItem -Path $sourceDir -Filter *.jpg | ForEach-Object {
-    $inputPath = $_.FullName
-    $outputPath = Join-Path $destinationDir $_.Name
-    Resize-Image $inputPath $outputPath 400
-}
-
-Write-Host "All images have been resized and saved in the 'prev' folder."
-```
+These components work together to provide a seamless experience for navigating folders, previewing files, selecting files, and downloading them.
 
 ## Deploying as a Docker Container
 

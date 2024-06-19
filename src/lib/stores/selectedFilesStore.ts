@@ -1,4 +1,4 @@
-//src/lib/stores/selectedFilesStore.ts
+// src/lib/stores/selectedFilesStore.ts
 import { writable } from 'svelte/store';
 
 const localStorageKey = 'selectedFiles';
@@ -15,11 +15,14 @@ function createSelectedFilesStore() {
   return {
     subscribe,
     add: (filePath: string) => update(files => {
-      const newFiles = [...files, filePath];
-      if (typeof window !== 'undefined') {
-        localStorage.setItem(localStorageKey, JSON.stringify(newFiles));
+      if (!files.includes(filePath)) {
+        const newFiles = [...files, filePath];
+        if (typeof window !== 'undefined') {
+          localStorage.setItem(localStorageKey, JSON.stringify(newFiles));
+        }
+        return newFiles;
       }
-      return newFiles;
+      return files;
     }),
     remove: (filePath: string) => update(files => {
       const newFiles = files.filter(path => path !== filePath);
@@ -29,10 +32,11 @@ function createSelectedFilesStore() {
       return newFiles;
     }),
     set: (filePaths: string[]) => {
+      const uniqueFilePaths = [...new Set(filePaths)];
       if (typeof window !== 'undefined') {
-        localStorage.setItem(localStorageKey, JSON.stringify(filePaths));
+        localStorage.setItem(localStorageKey, JSON.stringify(uniqueFilePaths));
       }
-      set(filePaths);
+      set(uniqueFilePaths);
     },
     clear: () => {
       if (typeof window !== 'undefined') {
