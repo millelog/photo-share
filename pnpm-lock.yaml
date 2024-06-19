@@ -4,6 +4,9 @@ dependencies:
   '@types/archiver':
     specifier: ^6.0.2
     version: 6.0.2
+  optional:
+    specifier: ^0.1.4
+    version: 0.1.4
 
 devDependencies:
   '@sveltejs/adapter-auto':
@@ -2248,6 +2251,10 @@ packages:
     dependencies:
       wrappy: 1.0.2
     dev: true
+
+  /optional@0.1.4:
+    resolution: {integrity: sha512-gtvrrCfkE08wKcgXaVwQVgwEQ8vel2dc5DDBn9RLQZ3YtmtkBss6A2HY6BnJH4N/4Ku97Ri/SF8sNWE2225WJw==}
+    dev: false
 
   /optionator@0.9.4:
     resolution: {integrity: sha512-6IpQ7mKUxRcZNLIObR0hz7lxsapSSIYNZJwXPGeF0mTVqGKFIXj1DQcMoT22S3ROcLyY/rz0PWaWZ9ayWmad9g==}

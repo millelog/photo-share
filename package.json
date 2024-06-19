@@ -38,6 +38,7 @@
 	},
 	"type": "module",
 	"dependencies": {
-		"@types/archiver": "^6.0.2"
+		"@types/archiver": "^6.0.2",
+		"optional": "^0.1.4"
 	}
 }
