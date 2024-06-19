@@ -1,76 +1,94 @@
 <!-- src/lib/components/ImageViewer.svelte -->
 <script lang="ts">
-    import { createEventDispatcher, onMount } from 'svelte';
-    import type { FileItem } from '$lib/types';
-    import DownloadButton from './DownloadButton.svelte';
-  
-    export let file: FileItem;
-    export let checkedFiles: Record<string, boolean>;
-    export let currentSelectedFolder: string;
-  
-    let loading = true;
-    let fullSize: number;
-  
-    const dispatch = createEventDispatcher();
-  
-    function updateFullUrl() {
-      if (file.type === 'image') {
-        const viewportWidth = window.innerWidth;
-        fullSize = getFullSize(viewportWidth);
-        file.fullUrl = `/api/image?path=${encodeURIComponent(file.path)}&size=${fullSize}`;
-      }
-    }
-  
-    onMount(updateFullUrl);
-  
-    $: {
-      if (file) {
-        updateFullUrl();
-        loading = true;
-      }
-    }
-  
-    function getFullSize(viewportWidth: number): number {
-      if (viewportWidth <= 640) {
-        return 800;
-      } else if (viewportWidth <= 1024) {
-        return 1200;
-      } else {
-        return 1600;
-      }
-    }
-  
-    function handleClose() {
-      dispatch('close');
-    }
-  
-    function handlePrevious() {
-      dispatch('previous');
-    }
-  
-    function handleNext() {
-      dispatch('next');
-    }
-  
-    function handleSelect(event: Event) {
-      dispatch('select', {
-        event,
-        path: file.path,
-      });
-    }
-  
-    function handleImageLoad() {
-      loading = false;
-    }
-  
-    function handleVideoLoad() {
-      loading = false;
-    }
-  </script>
+	import { createEventDispatcher, onMount } from 'svelte';
+	import type { FileItem } from '$lib/types';
+	import DownloadButton from './DownloadButton.svelte';
+
+	export let file: FileItem;
+	export let checkedFiles: Record<string, boolean>;
+	export let currentSelectedFolder: string;
+
+	let loading = true;
+	let fullSize: number;
+	let touchStartX = 0;
+
+	const dispatch = createEventDispatcher();
+
+	function updateFullUrl() {
+		if (file.type === 'image') {
+			const viewportWidth = window.innerWidth;
+			fullSize = getFullSize(viewportWidth);
+			file.fullUrl = `/api/image?path=${encodeURIComponent(file.path)}&size=${fullSize}`;
+		}
+	}
+
+	onMount(updateFullUrl);
+
+	$: {
+		if (file) {
+			updateFullUrl();
+			loading = true;
+		}
+	}
+
+	function getFullSize(viewportWidth: number): number {
+		if (viewportWidth <= 640) {
+			return 800;
+		} else if (viewportWidth <= 1024) {
+			return 1200;
+		} else {
+			return 1600;
+		}
+	}
+
+	function handleClose() {
+		dispatch('close');
+	}
+
+	function handlePrevious() {
+		dispatch('previous');
+	}
+
+	function handleNext() {
+		dispatch('next');
+	}
+
+	function handleSelect(event: Event) {
+		dispatch('select', {
+			event,
+			path: file.path
+		});
+	}
+
+	function handleImageLoad() {
+		loading = false;
+	}
+
+	function handleVideoLoad() {
+		loading = false;
+	}
+
+	function handleTouchStart(event: TouchEvent) {
+		touchStartX = event.touches[0].clientX;
+	}
+
+	function handleTouchEnd(event: TouchEvent) {
+		const touchEndX = event.changedTouches[0].clientX;
+		const touchDiff = touchStartX - touchEndX;
+
+		if (touchDiff > 50) {
+			handleNext();
+		} else if (touchDiff < -50) {
+			handlePrevious();
+		}
+	}
+</script>
 
 <div
 	class="fixed top-0 left-0 w-full h-full bg-black bg-opacity-75 flex items-center justify-center z-50"
 	on:click={handleClose}
+	on:touchstart={handleTouchStart}
+	on:touchend={handleTouchEnd}
 >
 	<div class="relative w-auto h-auto max-h-[90vh] max-w-[90vw] m-auto" on:click|stopPropagation>
 		<div class="relative">
