@@ -4,12 +4,12 @@
       <p class="text-lg font-bold text-balance">Like this website? Check out our web design business!</p>
     </div>
     <div class="flex space-x-2 xl:space-x-4">
-      <a href="https://www.cascadeonlinedesign.com" target="_blank" class="bg-xteal px-2 xl:px-4 py-2 text-xgray font-bold rounded-md hover:bg-xdteal transition text-center">
+      <a href="https://www.cascadeonlinedesign.com" target="_blank" class="bg-xteal px-2 xl:px-4 py-2 text-xgray font-bold rounded-md hover:bg-xdteal transition text-center plausible-event-name=cascade+linked plausible-event-position=footer+button">
         Visit Our Website
       </a>
     </div>
-    <a href="https://www.cascadeonlinedesign.com" target="_blank" class="md:hidden">
-        <img src="/img/cascade_full_white.png" alt="Cascade Online Design" class="mt-4 w-full max-w-[100px] mx-auto" />
+    <a href="https://www.cascadeonlinedesign.com" target="_blank" class="md:hidden plausible-event-name=cascade+linked plausible-event-position=footer">
+        <img src="/img/cascade_full_white.png" alt="Cascade Online Design" class="mt-4 w-full max-w-[100px] mx-auto " />
     </a>
   </footer>
   

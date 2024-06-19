@@ -70,7 +70,7 @@
       </li>
     {/each}
   </ul>
-  <a href="https://www.cascadeonlinedesign.com" class="hidden md:block pb-4">
+  <a href="https://www.cascadeonlinedesign.com" class="hidden md:block pb-4 plausible-event-name=cascade+linked plausible-event-position=sidebar">
     <img src="/img/cascade_full_white.png" alt="Cascade Online Design" class="mx-auto w-full max-w-[130px]" />
   </a>
 </nav>
