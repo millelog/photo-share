@@ -79,7 +79,7 @@
 
 		return lastTwoSegments
 			.map((segment) => segment.replace(/(^\w{1})|(\s+\w{1})/g, (letter) => letter.toUpperCase()))
-			.join(' > ');
+			.join(' ');
 	}
 
 	onMount(() => {
@@ -141,8 +141,8 @@
 	<div class="flex-1 overflow-y-scroll h-full flex flex-col justify-between">
 	  <div>
 		<div class="sticky top-0 bg-xgray z-20 flex items-center justify-between">
-		  <h1 class="text-sm md:text-2xl font-bold p-2 md:p-3 text-wrap shrink">
-			{currentSelectedFolder ? getPathName(currentSelectedFolder) : 'SELECT A FOLDER'}
+		  <h1 class="text-sm md:text-2xl font-bold p-2 md:p-3 text-wrap shrink ">
+			{currentSelectedFolder ? getPathName(currentSelectedFolder) : 'Select a Folder'}
 		  </h1>
 		  <div class="flex items-center">
 			<button
