@@ -132,6 +132,8 @@
 		content="A powerful and user-friendly photo sharing app allowing seamless navigation, previewing, and downloading of media files."
 	/>
 	<meta name="twitter:image" content="/img/cascade_full_white.png" />
+
+	<script defer data-domain="photos.loganmiller.dev" src="https://plausible.loganmiller.dev/js/script.js"></script>
 </svelte:head>
 
 <div class="flex flex-col md:flex-row h-[100vh] bg-xgray text-white">
