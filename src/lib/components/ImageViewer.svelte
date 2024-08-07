@@ -142,6 +142,13 @@
 					controls
 					on:loadedmetadata={handleVideoLoad}
 				/>
+			{:else}
+				<img
+					src={file.previewUrl}
+					alt={file.name}
+					class="w-auto h-auto max-h-[90vh] max-w-[90vw] m-auto rounded-md"
+					on:load={handleImageLoad}
+				/>
 			{/if}
 			<button
 				class="fixed left-1 md:left-5 top-1/2 transform -translate-y-1/2 text-white text-4xl md:text-7xl font-bold focus:outline-none hover:text-xteal"
