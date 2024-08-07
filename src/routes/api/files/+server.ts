@@ -63,12 +63,14 @@ function getFilesInFolder(folderPath: string, viewportWidth: number): FileItem[]
           fullUrl: fullUrl,
         });
       } else {
+        const previewUrl = `/img/data_thumbnail.png`;
         const fullUrl = `/api/data?path=${encodeURIComponent(relativePath)}`;
 
         fileItems.push({
           name: file.name,
           path: relativePath,
           type: fileType,
+          previewUrl: previewUrl,
           fullUrl: fullUrl,
         });
       }
