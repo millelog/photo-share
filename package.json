@@ -38,6 +38,9 @@
 		"vite": "^5.0.3"
 	},
 	"type": "module",
+	"engines": {
+		"node": ">=22.23.4 <23"
+	},
 	"dependencies": {
 		"@sveltejs/adapter-auto": "^3.0.0",
 		"@sveltejs/adapter-node": "^5.1.1",
